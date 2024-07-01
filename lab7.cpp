@@ -11,6 +11,10 @@ struct Node {
 // Функция для создания нового узла дерева
 struct Node* newNode(int value) {
     struct Node* node = (struct Node*)malloc(sizeof(struct Node));
+    if (node == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
     node->data = value;
     node->left = NULL;
     node->right = NULL;
@@ -24,8 +28,7 @@ struct Node* insert(struct Node* node, int value) {
     }
     if (value < node->data) {
         node->left = insert(node->left, value);
-    }
-    else {
+    } else {
         node->right = insert(node->right, value);
     }
     return node;
@@ -56,6 +59,15 @@ void postOrderTraversal(struct Node* node) {
     }
 }
 
+// Функция для освобождения памяти дерева
+void freeTree(struct Node* node) {
+    if (node != NULL) {
+        freeTree(node->left);
+        freeTree(node->right);
+        free(node);
+    }
+}
+
 // Функция для поиска элемента в одномерном массиве последовательным методом
 int sequentialSearch(int array[], int size, int key) {
     for (int i = 0; i < size; i++) {
@@ -76,12 +88,37 @@ int binarySearch(int array[], int size, int key) {
         }
         if (array[mid] < key) {
             left = mid + 1;
-        }
-        else {
+        } else {
             right = mid - 1;
         }
     }
     return -1;
+}
+
+// Функция быстрой сортировки
+void quickSort(int array[], int low, int high) {
+    if (low < high) {
+        int pivot = array[high];
+        int i = (low - 1);
+
+        for (int j = low; j < high; j++) {
+            if (array[j] <= pivot) {
+                i++;
+                int temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+            }
+        }
+
+        int temp = array[i + 1];
+        array[i + 1] = array[high];
+        array[high] = temp;
+
+        int pi = i + 1;
+
+        quickSort(array, low, pi - 1);
+        quickSort(array, pi + 1, high);
+    }
 }
 
 // Поиск элемента по диагональным элементам матрицы
@@ -112,22 +149,37 @@ int main() {
     // Ввод размера массива
     int n;
     printf("Enter the size of the matrix: ");
-    scanf("%d", &n);
+    if (scanf("%d", &n) != 1 || n <= 0) {
+        fprintf(stderr, "Invalid input\n");
+        return EXIT_FAILURE;
+    }
 
     // Создание и заполнение двумерного массива (матрицы)
     int** matrix = (int**)malloc(n * sizeof(int*));
+    if (matrix == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        return EXIT_FAILURE;
+    }
+
     for (int i = 0; i < n; i++) {
         matrix[i] = (int*)malloc(n * sizeof(int));
+        if (matrix[i] == NULL) {
+            fprintf(stderr, "Memory allocation failed\n");
+            return EXIT_FAILURE;
+        }
     }
 
     printf("Enter the elements of the matrix:\n");
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
-            scanf("%d", &matrix[i][j]);
+            if (scanf("%d", &matrix[i][j]) != 1) {
+                fprintf(stderr, "Invalid input\n");
+                return EXIT_FAILURE;
+            }
         }
     }
 
-    // Создание бинарного дерева поиска из диагонали матрицы
+    // Создание бинарного дерева поиска из главной диагонали матрицы
     struct Node* root = NULL;
     for (int i = 0; i < n; i++) {
         root = insert(root, matrix[i][i]);
@@ -145,10 +197,18 @@ int main() {
     // Ввод числа для поиска
     int target;
     printf("Enter the target value to search in the matrix: ");
-    scanf("%d", &target);
+    if (scanf("%d", &target) != 1) {
+        fprintf(stderr, "Invalid input\n");
+        return EXIT_FAILURE;
+    }
 
     // Поиск элемента в массиве
-    int arr[n * n];
+    int* arr = (int*)malloc(n * n * sizeof(int));
+    if (arr == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        return EXIT_FAILURE;
+    }
+
     int index = 0;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
@@ -160,28 +220,18 @@ int main() {
     int seqIndex = sequentialSearch(arr, n * n, target);
     if (seqIndex != -1) {
         printf("Element found at index %d (sequential search)\n", seqIndex);
-    }
-    else {
+    } else {
         printf("Element not found (sequential search)\n");
     }
 
     // Сортировка массива по возрастанию
-    for (int i = 0; i < n * n - 1; i++) {
-        for (int j = 0; j < n * n - i - 1; j++) {
-            if (arr[j] > arr[j + 1]) {
-                int temp = arr[j];
-                arr[j] = arr[j + 1];
-                arr[j + 1] = temp;
-            }
-        }
-    }
+    quickSort(arr, 0, n * n - 1);
 
     // Бинарный поиск
     int binIndex = binarySearch(arr, n * n, target);
     if (binIndex != -1) {
         printf("Element found at index %d (binary search)\n", binIndex);
-    }
-    else {
+    } else {
         printf("Element not found (binary search)\n");
     }
 
@@ -189,16 +239,17 @@ int main() {
     int diagSteps = diagonalSearch(matrix, n, target);
     if (diagSteps != -1) {
         printf("Element found after %d steps (diagonal search)\n", diagSteps);
-    }
-    else {
+    } else {
         printf("Element not found (diagonal search)\n");
     }
 
     // Освобождение памяти
+    free(arr);
     for (int i = 0; i < n; i++) {
         free(matrix[i]);
     }
     free(matrix);
+    freeTree(root);
 
     return 0;
 }
