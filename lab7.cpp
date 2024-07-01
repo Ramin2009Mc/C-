@@ -1,14 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Структура для узла дерева
 struct Node {
     int data;
     struct Node* left;
     struct Node* right;
 };
 
-// Функция для создания нового узла дерева
 struct Node* newNode(int value) {
     struct Node* node = (struct Node*)malloc(sizeof(struct Node));
     if (node == NULL) {
@@ -21,7 +19,6 @@ struct Node* newNode(int value) {
     return node;
 }
 
-// Функция для вставки значения в дерево
 struct Node* insert(struct Node* node, int value) {
     if (node == NULL) {
         return newNode(value);
@@ -34,7 +31,6 @@ struct Node* insert(struct Node* node, int value) {
     return node;
 }
 
-// Функции для обхода дерева
 void inOrderTraversal(struct Node* node) {
     if (node != NULL) {
         inOrderTraversal(node->left);
@@ -59,7 +55,6 @@ void postOrderTraversal(struct Node* node) {
     }
 }
 
-// Функция для освобождения памяти дерева
 void freeTree(struct Node* node) {
     if (node != NULL) {
         freeTree(node->left);
@@ -68,7 +63,6 @@ void freeTree(struct Node* node) {
     }
 }
 
-// Функция для поиска элемента в одномерном массиве последовательным методом
 int sequentialSearch(int array[], int size, int key) {
     for (int i = 0; i < size; i++) {
         if (array[i] == key) {
@@ -78,7 +72,6 @@ int sequentialSearch(int array[], int size, int key) {
     return -1;
 }
 
-// Функция для поиска элемента в одномерном массиве бинарным методом
 int binarySearch(int array[], int size, int key) {
     int left = 0, right = size - 1;
     while (left <= right) {
@@ -95,7 +88,6 @@ int binarySearch(int array[], int size, int key) {
     return -1;
 }
 
-// Функция быстрой сортировки
 void quickSort(int array[], int low, int high) {
     if (low < high) {
         int pivot = array[high];
@@ -121,11 +113,9 @@ void quickSort(int array[], int low, int high) {
     }
 }
 
-// Поиск элемента по диагональным элементам матрицы
 int diagonalSearch(int** matrix, int n, int target) {
     int count = 0;
 
-    // Поиск элемента на главной диагонали
     for (int i = 0; i < n; i++) {
         count++;
         if (matrix[i][i] == target) {
@@ -133,7 +123,6 @@ int diagonalSearch(int** matrix, int n, int target) {
         }
     }
 
-    // Поиск элемента на побочной диагонали
     for (int i = 0; i < n; i++) {
         count++;
         if (matrix[i][n - 1 - i] == target) {
@@ -144,17 +133,14 @@ int diagonalSearch(int** matrix, int n, int target) {
     return -1;
 }
 
-// Основная функция
 int main() {
-    // Ввод размера массива
     int n;
     printf("Enter the size of the matrix: ");
-    if (scanf("%d", &n) != 1 || n <= 0) {
-        fprintf(stderr, "Invalid input\n");
-        return EXIT_FAILURE;
+    while (scanf("%d", &n) != 1 || n <= 0) {
+        fprintf(stderr, "Invalid input. Please enter a positive integer: ");
+        while (getchar() != '\n'); // Clearing buffer
     }
 
-    // Создание и заполнение двумерного массива (матрицы)
     int** matrix = (int**)malloc(n * sizeof(int*));
     if (matrix == NULL) {
         fprintf(stderr, "Memory allocation failed\n");
@@ -164,6 +150,10 @@ int main() {
     for (int i = 0; i < n; i++) {
         matrix[i] = (int*)malloc(n * sizeof(int));
         if (matrix[i] == NULL) {
+            for (int j = 0; j < i; j++) {
+                free(matrix[j]);
+            }
+            free(matrix);
             fprintf(stderr, "Memory allocation failed\n");
             return EXIT_FAILURE;
         }
@@ -172,20 +162,18 @@ int main() {
     printf("Enter the elements of the matrix:\n");
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
-            if (scanf("%d", &matrix[i][j]) != 1) {
-                fprintf(stderr, "Invalid input\n");
-                return EXIT_FAILURE;
+            while (scanf("%d", &matrix[i][j]) != 1) {
+                fprintf(stderr, "Invalid input. Please enter an integer: ");
+                while (getchar() != '\n'); // Clearing buffer
             }
         }
     }
 
-    // Создание бинарного дерева поиска из главной диагонали матрицы
     struct Node* root = NULL;
     for (int i = 0; i < n; i++) {
         root = insert(root, matrix[i][i]);
     }
 
-    // Вывод значений дерева разными способами
     printf("In-order traversal: ");
     inOrderTraversal(root);
     printf("\nPre-order traversal: ");
@@ -194,15 +182,13 @@ int main() {
     postOrderTraversal(root);
     printf("\n");
 
-    // Ввод числа для поиска
     int target;
     printf("Enter the target value to search in the matrix: ");
-    if (scanf("%d", &target) != 1) {
-        fprintf(stderr, "Invalid input\n");
-        return EXIT_FAILURE;
+    while (scanf("%d", &target) != 1) {
+        fprintf(stderr, "Invalid input. Please enter an integer: ");
+        while (getchar() != '\n'); // Clearing buffer
     }
 
-    // Поиск элемента в массиве
     int* arr = (int*)malloc(n * n * sizeof(int));
     if (arr == NULL) {
         fprintf(stderr, "Memory allocation failed\n");
@@ -213,7 +199,7 @@ int main() {
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             arr[index++] = matrix[i][j];
-        }
+            }
     }
 
     // Последовательный поиск
