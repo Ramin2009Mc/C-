@@ -1,14 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// ��������� ��� ���� ������
+// Структура для узла дерева
 struct Node {
     int data;
     struct Node* left;
     struct Node* right;
 };
 
-// ������� ��� �������� ������ ���� ������
+// Функция для создания нового узла дерева
 struct Node* newNode(int value) {
     struct Node* node = (struct Node*)malloc(sizeof(struct Node));
     node->data = value;
@@ -17,7 +17,7 @@ struct Node* newNode(int value) {
     return node;
 }
 
-// ������� ��� ������� �������� � ������
+// Функция для вставки значения в дерево
 struct Node* insert(struct Node* node, int value) {
     if (node == NULL) {
         return newNode(value);
@@ -31,7 +31,7 @@ struct Node* insert(struct Node* node, int value) {
     return node;
 }
 
-// ������� ��� ������ ������
+// Функции для обхода дерева
 void inOrderTraversal(struct Node* node) {
     if (node != NULL) {
         inOrderTraversal(node->left);
@@ -40,7 +40,23 @@ void inOrderTraversal(struct Node* node) {
     }
 }
 
-// ������� ��� ������ �������� � ���������� ������� ���������������� �������
+void preOrderTraversal(struct Node* node) {
+    if (node != NULL) {
+        printf("%d ", node->data);
+        preOrderTraversal(node->left);
+        preOrderTraversal(node->right);
+    }
+}
+
+void postOrderTraversal(struct Node* node) {
+    if (node != NULL) {
+        postOrderTraversal(node->left);
+        postOrderTraversal(node->right);
+        printf("%d ", node->data);
+    }
+}
+
+// Функция для поиска элемента в одномерном массиве последовательным методом
 int sequentialSearch(int array[], int size, int key) {
     for (int i = 0; i < size; i++) {
         if (array[i] == key) {
@@ -50,7 +66,7 @@ int sequentialSearch(int array[], int size, int key) {
     return -1;
 }
 
-// ������� ��� ������ �������� � ���������� ������� �������� �������
+// Функция для поиска элемента в одномерном массиве бинарным методом
 int binarySearch(int array[], int size, int key) {
     int left = 0, right = size - 1;
     while (left <= right) {
@@ -68,11 +84,11 @@ int binarySearch(int array[], int size, int key) {
     return -1;
 }
 
-// ����� �������� �� ������������ ��������� �������
+// Поиск элемента по диагональным элементам матрицы
 int diagonalSearch(int** matrix, int n, int target) {
     int count = 0;
 
-    // ����� �������� �� ������� ���������
+    // Поиск элемента на главной диагонали
     for (int i = 0; i < n; i++) {
         count++;
         if (matrix[i][i] == target) {
@@ -80,7 +96,7 @@ int diagonalSearch(int** matrix, int n, int target) {
         }
     }
 
-    // ����� �������� �� �������� ���������
+    // Поиск элемента на побочной диагонали
     for (int i = 0; i < n; i++) {
         count++;
         if (matrix[i][n - 1 - i] == target) {
@@ -91,36 +107,33 @@ int diagonalSearch(int** matrix, int n, int target) {
     return -1;
 }
 
-//����� �� ����� �������� ������ ������� ��������� (������, ��������, �����������)
-void preOrderTraversal(struct Node* node) {
-    if (node != NULL) {
-        printf("%d ", node->data);
-        preOrderTraversal(node->left);
-        preOrderTraversal(node->right);
-    }
-}
-
-void postOrderTraversal(struct Node* node) {
-    if (node != NULL) {
-        postOrderTraversal(node->left);
-        postOrderTraversal(node->right);
-        printf("%d ", node->data);
-    }
-}
-
-//������� ������� � �������, ���������� � �������� �������, ������� ������ �� ��������� (��������� � ��������� ������), � ������� ����� ��� ������ ������ � ���� ���, ������ ����. ���������� �����, ����������  (������� �����/����� ��� ���), ���������� �� �����������, ���� �������� �������, ������� �����, ����� ��� ���. ���� �� ������
+// Основная функция
 int main() {
-    // �������� ��������� ������ ������
-    struct Node* root = NULL;
-    root = insert(root, 10);
-    root = insert(root, 5);
-    root = insert(root, 15);
-    root = insert(root, 3);
-    root = insert(root, 7);
-    root = insert(root, 12);
-    root = insert(root, 20);
+    // Ввод размера массива
+    int n;
+    printf("Enter the size of the matrix: ");
+    scanf("%d", &n);
 
-    // ����� �������� ������ ������� ���������
+    // Создание и заполнение двумерного массива (матрицы)
+    int** matrix = (int**)malloc(n * sizeof(int*));
+    for (int i = 0; i < n; i++) {
+        matrix[i] = (int*)malloc(n * sizeof(int));
+    }
+
+    printf("Enter the elements of the matrix:\n");
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            scanf("%d", &matrix[i][j]);
+        }
+    }
+
+    // Создание бинарного дерева поиска из диагонали матрицы
+    struct Node* root = NULL;
+    for (int i = 0; i < n; i++) {
+        root = insert(root, matrix[i][i]);
+    }
+
+    // Вывод значений дерева разными способами
     printf("In-order traversal: ");
     inOrderTraversal(root);
     printf("\nPre-order traversal: ");
@@ -129,55 +142,59 @@ int main() {
     postOrderTraversal(root);
     printf("\n");
 
-    // ���������� ������ ������
-    int arr[] = { 1, 3, 5, 7, 9, 11, 13, 15, 17, 19 };
-    int n = sizeof(arr) / sizeof(arr[0]);
+    // Ввод числа для поиска
+    int target;
+    printf("Enter the target value to search in the matrix: ");
+    scanf("%d", &target);
 
-    // ����� �������� � ������� � ������� ����������������� ������
-    int target = 13;
-    int index = sequentialSearch(arr, n, target);
-    if (index != -1) {
-        printf("Element found at index %d (sequential search)\n", index);
+    // Поиск элемента в массиве
+    int arr[n * n];
+    int index = 0;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            arr[index++] = matrix[i][j];
+        }
+    }
+
+    // Последовательный поиск
+    int seqIndex = sequentialSearch(arr, n * n, target);
+    if (seqIndex != -1) {
+        printf("Element found at index %d (sequential search)\n", seqIndex);
     }
     else {
         printf("Element not found (sequential search)\n");
     }
 
-    // ����� �������� � ������� � ������� ��������� ������
-    index = binarySearch(arr, n, target);
-    if (index != -1) {
-        printf("Element found at index %d (binary search)\n", index);
+    // Сортировка массива по возрастанию
+    for (int i = 0; i < n * n - 1; i++) {
+        for (int j = 0; j < n * n - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                int temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+
+    // Бинарный поиск
+    int binIndex = binarySearch(arr, n * n, target);
+    if (binIndex != -1) {
+        printf("Element found at index %d (binary search)\n", binIndex);
     }
     else {
         printf("Element not found (binary search)\n");
     }
 
-    // �������� ���������� ������� (�������)
-    int** matrix = (int**)malloc(n * sizeof(int*));
-    for (int i = 0; i < n; i++) {
-        matrix[i] = (int*)malloc(n * sizeof(int));
-    }
-
-
-    // ���������� ������� �������
-    int count = 1;
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            matrix[i][j] = count++;
-        }
-    }
-
-    // ����� �������� � ������� �� ������������ ���������
-    target = 15;
-    index = diagonalSearch(matrix, n, target);
-    if (index != -1) {
-        printf("Element found at index %d (diagonal search)\n", index);
+    // Поиск элемента по диагональным элементам матрицы
+    int diagSteps = diagonalSearch(matrix, n, target);
+    if (diagSteps != -1) {
+        printf("Element found after %d steps (diagonal search)\n", diagSteps);
     }
     else {
         printf("Element not found (diagonal search)\n");
     }
 
-    // ������������ ������
+    // Освобождение памяти
     for (int i = 0; i < n; i++) {
         free(matrix[i]);
     }
